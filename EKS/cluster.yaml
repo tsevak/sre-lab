@@ -1,0 +1,44 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: demo-cluster
+  region: ap-southeast-2
+  version: '1.23'
+
+cloudWatch:
+  clusterLogging:
+    # enable specific types of cluster control plane logs
+    # enableTypes: ["api","audit", "authenticator", "controllerManager"]
+    # all supported types: "api", "audit", "authenticator", "controllerManager", "scheduler"
+    # supported special values: "*" and "all"
+
+iam:
+  withOIDC: true
+  serviceAccounts:    # This covers service account creation while cluster creation which enables required IAM POLICY for ALB , EBS
+      - metadata:
+          name: aws-load-balancer-controller
+          namespace: kube-system
+        wellKnownPolicies:
+          awsLoadBalancerController: true
+      - metadata:
+          name: ebs-csi-controller-sa
+          namespace: kube-system
+        wellKnownPolicies:
+          ebsCSIController: true
+managedNodeGroups:
+    - name: demo-worker-nodes
+      instanceType: t2.large
+      desiredCapacity: 2
+      maxSize: 3
+      privateNetworking: true
+      iam:
+        withAddonPolicies:
+          ebs: true
+      ssh:
+           allow: true
+           publicKeyPath: ~/.ssh/cluster-key.pub
+      volumeSize: 50
+
+
+  

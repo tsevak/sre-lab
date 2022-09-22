@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-web
+  labels:
+    region: Sydney
+    env: Dev
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+   # alb.ingress.kubernetes.io/certificate-arn: < SSL CERT ARN for HTTPS >
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/tags: Env=Dev
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: web
+              port:
+                number: 80
