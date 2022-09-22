@@ -1,0 +1,41 @@
+name: Docker Image CI
+
+on:       # how this workflow triggers, currently set to run manually but we can automatically call based on events like PUSH or PULL requests or on Branch
+  workflow_dispatch:
+
+jobs:
+
+  build-backend:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3   # checkout code 
+
+    - name: Build the Backend API Container Image
+      run: |
+        cd Backend/TodoList.Api/
+        docker build . --file Dockerfile --tag singymingy86/testapi
+        
+    - name: push Image to container registry   # this code gets secrets from pre-defined SECRETS at Github 
+      run: |
+        docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.REGISTRY_ACCESS_TOKEN }}
+        docker push singymingy86/testapi
+
+  build-frontend:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+
+    - uses: actions/checkout@v3   # checkout code 
+
+    - name: Build the Frontend Container Image
+      run: |
+        cd Frontend/
+        docker build . --file Dockerfile --tag singymingy86/testui
+
+    - name: push Image to container registry
+      run: |
+        docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.REGISTRY_ACCESS_TOKEN }}
+        docker push singymingy86/testui
